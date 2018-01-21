@@ -4,12 +4,9 @@ using System.Net.Sockets;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-public class PongMaster : MonoBehaviour {
+public class Server : MonoBehaviour {
 
 	public int port = 4242;
-
-	public GameObject ballPrefab;
-	public GameObject paddlePrefab;
 
 	public RectTransform clientList;
 	public GameObject clientListItemPrefab;

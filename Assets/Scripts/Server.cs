@@ -76,6 +76,7 @@ public class Server : MonoBehaviour {
 		for(int i = 0; i < clients.Count; i++) {
 			GameObject listItem = GameObject.Instantiate(clientListItemPrefab, clientList);
 			listItem.transform.Find("Name Field").GetComponent<Text>().text = clients[i].info.name;
+			listItem.transform.Translate(0, -40 * i, 0);
 		}
 	}
 	

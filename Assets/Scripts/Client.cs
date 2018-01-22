@@ -68,6 +68,16 @@ public class Client : PongActor {
 			writer.WriteLine(state.ToJson());
 			latestNetworkSend = Time.fixedTime;
 		}
+
+		string message = ReadMessage();
+
+		if(message != null) {
+			try {
+				latestDecision = Paddle.DirectionFromString(message);
+			} catch(ArgumentException e) {
+				Debug.LogWarning(e);
+			}
+		}
 		
 		return latestDecision;
 	}

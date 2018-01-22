@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public class Arena : MonoBehaviour {
 
 	public float radius = 1.0f;
-	public float paddleSpeed = Mathf.PI;
+	public float paddleSpeed = Mathf.PI / 2;
+	public float ballSpeed = 2.0f;
 
-	[System.Serializable]
 	public class State {
 		public Ball ball;
 		public List<Paddle> paddles;
@@ -20,9 +21,18 @@ public class Arena : MonoBehaviour {
 		}
 
 		public string ToJson() {
-			return string.Format("{{\"ball\":{0}, \"paddles\":{0}}}",
+			StringBuilder paddleList = new StringBuilder();
+
+			for(int i = 0; i < paddles.Count; i++) {
+				paddleList.Append(JsonUtility.ToJson(paddles[i]));
+				if(i < paddles.Count - 1) {
+					paddleList.Append(',');
+				}
+			}
+
+			return string.Format("{{\"ball\":{0}, \"paddles\":[{1}]}}",
 				JsonUtility.ToJson(ball),
-				JsonUtility.ToJson(paddles)
+				paddleList.ToString()
 			);
 		}
 	}
@@ -52,11 +62,9 @@ public class Arena : MonoBehaviour {
 
 		GameObject ballObject = GameObject.Instantiate(ballPrefab, Vector3.zero, Quaternion.identity, transform);
 		Ball ball = ballObject.AddComponent<Ball>();
+		ball.Reset(ballSpeed);
 
 		state = new State(ball, paddles);
-
-		Debug.Log(state.ToJson());
-
 	}
 
 	void FixedUpdate() {
@@ -64,9 +72,18 @@ public class Arena : MonoBehaviour {
 			foreach(Paddle paddle in state.Paddles) {
 				paddle.UpdatePaddle(state, Time.fixedDeltaTime);
 			}
+			state.ball.UpdateBall(state, Time.fixedDeltaTime);
+
+			if(state.ball.position.ToVec2().magnitude > radius) {
+				state.ball.Reset(ballSpeed);
+			}
 		}
 	}
 
 	void Start() {
+		List<PongActor> actors = new List<PongActor>();
+		actors.Add(new PlayerActor());
+		actors.Add(new DumbActor());
+		//StartGame(actors);
 	}
 }

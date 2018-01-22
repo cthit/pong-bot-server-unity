@@ -5,28 +5,23 @@ using UnityEngine;
 [System.Serializable]
 public class SVector2 {
 
-	public float x;
-	public float y;
+	private float x = 0;
+	private float y = 0;
+
+	public float X { get{ return this.x; } }
+	public float Y { get{ return this.y; } }
 
 	public SVector2(Vector2 v) {
-		Set(v);
+		this.x = v.x;
+		this.y = v.y;
 	}
 	
 	public SVector2(float x, float y) {
-		Set(x, y);
+		this.x = x;
+		this.y = y;
 	}
 
 	public Vector2 ToVec2() {
 		return new Vector2(x, y);
-	}
-
-	public void Set(Vector2 v) {
-		this.x = v.x;
-		this.y = v.y;
-	}
-
-	public void Set(float x, float y) {
-		this.x = x;
-		this.y = y;
 	}
 }

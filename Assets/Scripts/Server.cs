@@ -30,6 +30,7 @@ public class Server : MonoBehaviour {
 					TcpClient tcpClient = listener.AcceptTcpClient();
 					Client client = new Client(++idTicker, tcpClient);
 					pendingClients.Add(client);
+					Debug.LogFormat("New client {0} connected", client.ID);
 					client.SendMessage(string.Format("{{\"id\":{0}}}", client.ID));
 				} catch(SocketException e) {
 					Debug.LogError(e);
@@ -45,7 +46,7 @@ public class Server : MonoBehaviour {
 			try {
 				String message = client.ReadMessage();
 				if(message != null) {
-					Debug.LogFormat("Client {0} greeted with {1}.", client.ID, message);
+					Debug.LogFormat("Client {0} greets: {1}.", client.ID, message);
 
 					Client.ClientInfo clientInfo = JsonUtility.FromJson<Client.ClientInfo>(message);
 					client.info = clientInfo;

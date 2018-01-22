@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+
+[RequireComponent(typeof(Arena))]
 public class Server : MonoBehaviour {
 
 	public int port = 4242;
@@ -18,12 +21,16 @@ public class Server : MonoBehaviour {
 	private List<Client> pendingClients = new List<Client>();
 	private List<Client> clients = new List<Client>();
 
+	private Arena arena;
+
 	private void HandleIncomingConnections() {
 		try {
 			while(listener.Pending()) {
 				try {
 					TcpClient tcpClient = listener.AcceptTcpClient();
-					pendingClients.Add(new Client(++idTicker, tcpClient));
+					Client client = new Client(++idTicker, tcpClient);
+					pendingClients.Add(client);
+					client.SendMessage(string.Format("{{\"id\":{0}}}", client.ID));
 				} catch(SocketException e) {
 					Debug.LogError(e);
 				}
@@ -38,16 +45,22 @@ public class Server : MonoBehaviour {
 			try {
 				String message = client.ReadMessage();
 				if(message != null) {
-					Debug.Log(message);
+					Debug.LogFormat("Client {0} greeted with {1}.", client.ID, message);
+
+					Client.ClientInfo clientInfo = JsonUtility.FromJson<Client.ClientInfo>(message);
+					client.info = clientInfo;
+
 					clients.Add(client);
 					pendingClients.Remove(client);
 					HandlePendingClients();
 					UpdateClientList(); // TODO: move me somewhere more sensible
 					break;
 				}
-			} catch(ObjectDisposedException e) {
+			} catch(Exception e) {
 				Debug.LogWarning(e);
+				Debug.LogWarningFormat("Kicking client {0}", client.ID);
 				pendingClients.Remove(client); // Remove offending client
+				client.tcpClient.Close();
 				HandlePendingClients(); // Try again
 				break;
 			}
@@ -64,11 +77,18 @@ public class Server : MonoBehaviour {
 			listItem.transform.Find("Name Field").GetComponent<Text>().text = clients[i].info.name;
 		}
 	}
+	
+	public void StartGame() {
+		List<PongActor> actors = new List<PongActor>();
+		actors.AddRange(clients.Select(x => (PongActor)x));
+		arena.StartGame(actors);
+	}
 
 	// Use this for initialization
 	void Start () {
-		listener = new TcpListener(port);
-		listener.Start();
+		this.listener = new TcpListener(port);
+		this.listener.Start();
+		this.arena = GetComponent<Arena>();
 	}
 	
 	// Update is called once per frame

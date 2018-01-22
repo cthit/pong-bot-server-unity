@@ -42,7 +42,7 @@ public class Paddle : MonoBehaviour {
 	private void UpdateWorldPosition() {
 		transform.rotation = Quaternion.Euler(0, 0, position / (Mathf.PI/180) + 90);
 		Vector2 coords = new Vector2(0, arenaRadius + radius / 4f);
-		Debug.Log(coords);
+		
 		float cs = Mathf.Cos(position);
 		float sn = Mathf.Sin(position);
 		coords = new Vector2(
@@ -59,10 +59,10 @@ public class Paddle : MonoBehaviour {
 		switch (direction)
 		{
 			case Direction.Left:
-				position = Mathf.Max(position + maxSpeed * deltaTime, areaBegin + areaSize);
+				position = Mathf.Min(position + maxSpeed * deltaTime, areaBegin + areaSize);
 				break;
 			case Direction.Right:
-				position = Mathf.Min(position - maxSpeed * deltaTime, areaBegin);
+				position = Mathf.Max(position - maxSpeed * deltaTime, areaBegin);
 				break;
 			default:
 				break;

@@ -10,7 +10,7 @@ public class ServerEditor : Editor
         Server server = (Server)target;
         
         //myTarget.experience = EditorGUILayout.IntField("Experience", myTarget.experience);
-        EditorGUILayout.IntField("Connected Clients", server.ClientCount);
+        EditorGUILayout.IntField("Connected Clients", server.ClientCount + server.PendingClientCount);
 		EditorGUILayout.Space();
 		server.port = EditorGUILayout.IntField("Port", Mathf.Max(Mathf.Min(server.port, 65536), 1000));
 		server.clientList = (RectTransform)EditorGUILayout.ObjectField(

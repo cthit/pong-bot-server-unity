@@ -22,6 +22,7 @@ public class Server : MonoBehaviour {
 	private List<Client> clients = new List<Client>();
 
 	public int ClientCount { get{ return clients.Count; } }
+	public int PendingClientCount { get{ return clients.Count; } }
 
 	private Arena arena;
 
@@ -48,7 +49,7 @@ public class Server : MonoBehaviour {
 			try {
 				String message = client.ReadMessage();
 				if(message != null) {
-					Debug.LogFormat("Client {0} greets: {1}.", client.ID, message);
+					Debug.LogFormat("Client {0} greets: \"{1}\".", client.ID, message);
 
 					Client.ClientInfo clientInfo = JsonUtility.FromJson<Client.ClientInfo>(message);
 					client.info = clientInfo;

@@ -67,6 +67,19 @@ public class Arena : MonoBehaviour {
 		state = new State(ball, paddles);
 	}
 
+	public void StopGame() {
+		if(state == null) {
+			Debug.LogError("Game Already Stopped");
+			return;
+		}
+
+		foreach(Transform child in transform) {
+			GameObject.Destroy(child.gameObject);
+		}
+
+		state = null;
+	}
+
 	void FixedUpdate() {
 		if(state != null) {
 			foreach(Paddle paddle in state.Paddles) {

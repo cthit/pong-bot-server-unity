@@ -43,6 +43,9 @@ public class Client : PongActor {
 		this.writer = new StreamWriter(tcpClient.GetStream());
 		this.latestNetworkSend = Time.fixedTime;
 
+		// Always write instantly to socket on writer.Write()
+		this.writer.AutoFlush = true;
+
 		this.messageReader = new Thread(MessageReader);
 		messageReader.Start();
 	}
@@ -93,6 +96,6 @@ public class Client : PongActor {
 	}
 
 	public void SendMessage(string message) {
-		writer.Write(message);
+		writer.WriteLine(message);
 	}
 }

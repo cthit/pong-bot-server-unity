@@ -21,6 +21,8 @@ public class Server : MonoBehaviour {
 	private List<Client> pendingClients = new List<Client>();
 	private List<Client> clients = new List<Client>();
 
+	public int ClientCount { get{ return clients.Count; } }
+
 	private Arena arena;
 
 	private void HandleIncomingConnections() {

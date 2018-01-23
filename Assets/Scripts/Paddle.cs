@@ -24,6 +24,9 @@ public class Paddle : MonoBehaviour {
 	public float Position{ get{ return position; } }
 	public float Radius{ get{ return radius; } }
 
+	public float AreaBegin { get{ return areaBegin; } }
+	public float AreaSize { get{ return areaSize; } }
+
 	private PongActor actor = null;
 
 	public void Initialize(PongActor actor, float radius, float arenaRadius, float areaBegin, float areaSize, float maxSpeed) {

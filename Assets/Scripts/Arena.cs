@@ -48,6 +48,11 @@ public class Arena : MonoBehaviour {
 			return;
 		}
 
+		if(actors.Count == 0) {
+			Debug.LogError("Can't start a game with 0 players");
+			return;
+		}
+
 		List<Paddle> paddles = new List<Paddle>();
 
 		float areaSize = Mathf.PI * 2f / actors.Count;

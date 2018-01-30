@@ -49,7 +49,7 @@ public class Server : MonoBehaviour {
 			try {
 				String message = client.ReadMessage();
 				if(message != null) {
-					Debug.LogFormat("Client {0} greets: \"{1}\".", client.ID, message);
+					Debug.LogFormat("Client {0} sent greeting: \"{1}\".", client.ID, message);
 
 					Client.ClientInfo clientInfo = JsonUtility.FromJson<Client.ClientInfo>(message);
 					client.info = clientInfo;
@@ -71,6 +71,19 @@ public class Server : MonoBehaviour {
 		}
 	}
 
+	private void CleanClientList() {
+		int preCount = clients.Count;
+		for(int i = 0; i < clients.Count; i++) {
+			if(!clients[i].IsConnected) {
+				clients.RemoveAt(i--);
+			}
+		}
+
+		if(preCount != clients.Count) {
+			UpdateClientList();
+		}
+	}
+
 	private void UpdateClientList() {
 		foreach(Transform child in clientList) {
 			GameObject.Destroy(child.gameObject);
@@ -86,7 +99,7 @@ public class Server : MonoBehaviour {
 	public void StartGame() {
 		List<PongActor> actors = new List<PongActor>();
 		actors.AddRange(clients.Select(x => (PongActor)x));
-		arena.StartGame(actors);
+		arena.StartGame(actors, CleanClientList);
 	}
 
 	// Use this for initialization

@@ -9,15 +9,19 @@ public class Arena : MonoBehaviour {
 	public float paddleSpeed = Mathf.PI / 2;
 	public float ballSpeed = 2.0f;
 
+	public delegate void OnGameEnd();
+
 	public class State {
 		public Ball ball;
 		public List<Paddle> paddles;
+		public OnGameEnd callback;
 
 		public List<Paddle> Paddles { get{ return paddles; } }
 
-		public State(Ball ball, List<Paddle> paddles) {
+		public State(Ball ball, List<Paddle> paddles, OnGameEnd callback) {
 			this.ball = ball;
 			this.paddles = paddles;
+			this.callback = callback;
 		}
 
 		public string ToJson() {
@@ -42,7 +46,7 @@ public class Arena : MonoBehaviour {
 
 	private State state = null;
 	
-	public void StartGame(List<PongActor> actors) {
+	public void StartGame(List<PongActor> actors, OnGameEnd callback) {
 		if(state != null) {
 			Debug.LogError("Game Already Started");
 			return;
@@ -69,7 +73,7 @@ public class Arena : MonoBehaviour {
 		Ball ball = ballObject.AddComponent<Ball>();
 		ball.Reset(ballSpeed);
 
-		state = new State(ball, paddles);
+		state = new State(ball, paddles, callback);
 	}
 
 	public void StopGame() {
@@ -80,6 +84,10 @@ public class Arena : MonoBehaviour {
 
 		foreach(Transform child in transform) {
 			GameObject.Destroy(child.gameObject);
+		}
+
+		if(state.callback != null) {
+			state.callback();
 		}
 
 		state = null;

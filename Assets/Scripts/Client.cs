@@ -35,6 +35,12 @@ public class Client : PongActor {
 		}
 	}
 
+	public bool IsConnected {
+		get {
+			return tcpClient != null;
+		}
+	}
+
 	public Client(int id, TcpClient tcpClient) {
 		this.id = id;
 		this.info = null;
@@ -60,39 +66,49 @@ public class Client : PongActor {
 			}
 		} catch(IOException e) {
 			Debug.LogError(e);
-		} finally {
-			
 		}
 	}
 	
 	public Paddle.Direction MakeDecision(Arena.State state) {
-
-		if(Time.fixedTime - latestNetworkSend >= NETWORK_SEND_DELAY) {
-			writer.WriteLine(state.ToJson());
-			latestNetworkSend = Time.fixedTime;
-		}
-
-		string message = ReadMessage();
-
-		if(message != null) {
+		if(IsConnected) {
 			try {
-				latestDecision = Paddle.DirectionFromString(message);
-			} catch(ArgumentException e) {
+				if(Time.fixedTime - latestNetworkSend >= NETWORK_SEND_DELAY) {
+					writer.WriteLine(state.ToJson());
+					latestNetworkSend = Time.fixedTime;
+				}
+
+				string message = ReadMessage();
+
+				if(message != null) {
+					try {
+						latestDecision = Paddle.DirectionFromString(message);
+					} catch(ArgumentException e) {
+						Debug.LogWarning(e);
+					}
+				}
+			} catch(IOException e) {
 				Debug.LogWarning(e);
+				Debug.LogWarningFormat("Disconnecting client {0}.", id);
+				this.tcpClient = null;
+				this.writer = null;
+				this.reader = null;
 			}
 		}
-		
+
 		return latestDecision;
 	}
 
 	public string ReadMessage() {
-		try {
-			lock (receiveQueue) {
-				return receiveQueue.Dequeue();
+		if(IsConnected) {
+			try {
+				lock (receiveQueue) {
+					return receiveQueue.Dequeue();
+				}
+			} catch(InvalidOperationException) {
+				// Queue was empty
 			}
-		} catch(InvalidOperationException) {
-			return null; // Queue was empty
 		}
+		return null;
 	}
 
 	public void SendMessage(string message) {

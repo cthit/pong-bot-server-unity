@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Globalization;
 
 [System.Serializable]
 public class Paddle : MonoBehaviour {
@@ -20,14 +21,20 @@ public class Paddle : MonoBehaviour {
 	private float areaBegin;
 	private float areaSize;
 	private float maxSpeed;
+	private int points = 0;
+	private PongActor actor = null;
+
+	private Direction latestDecision;
+
 
 	public float Position{ get{ return position; } }
 	public float Radius{ get{ return radius; } }
 
 	public float AreaBegin { get{ return areaBegin; } }
 	public float AreaSize { get{ return areaSize; } }
-
-	private PongActor actor = null;
+	public float AreaEnd { get{ return areaBegin + areaSize; } }
+	public int Points { get{ return points; } }
+	public PongActor Actor { get{ return actor; } }
 
 	public void Initialize(PongActor actor, float radius, float arenaRadius, float areaBegin, float areaSize, float maxSpeed) {
 		if(this.actor != null) {
@@ -47,8 +54,12 @@ public class Paddle : MonoBehaviour {
 		UpdateWorldPosition();
 	}
 
+	public int IncrementPoints() {
+		return ++points;
+	}
+
 	private void UpdateWorldPosition() {
-		transform.rotation = Quaternion.Euler(0, 0, position / (Mathf.PI/180) + 90);
+		transform.rotation = Quaternion.Euler(0, 0, position / (Mathf.PI/180f) + 90f);
 		Vector2 coords = new Vector2(0, arenaRadius + radius / 4f);
 		
 		coords = VecUtil.Rotate(coords, position);
@@ -57,9 +68,9 @@ public class Paddle : MonoBehaviour {
 	}
 
 	public void UpdatePaddle(Arena.State arenaState, float deltaTime) {
-		Direction direction = actor.MakeDecision(arenaState);
+		latestDecision = actor.MakeDecision(arenaState);
 
-		switch (direction)
+		switch (latestDecision)
 		{
 			case Direction.Left:
 				position = Mathf.Min(position + maxSpeed * deltaTime, areaBegin + areaSize);
@@ -75,13 +86,21 @@ public class Paddle : MonoBehaviour {
 	}
 
 	public static Direction DirectionFromString(string str) {
-		if(str.Equals("left")) {
+		string lower = str.ToLower();
+		if(lower.Equals("move_clockwise")) {
 			return Direction.Left;
-		} else if(str.Equals("right")) {
+		} else if(lower.Equals("move_counterclockwise")) {
 			return Direction.Right;
-		} else if(str.Equals("none")) {
+		} else if(lower.Equals("stop")) {
 			return Direction.Left;
 		}
 		throw new ArgumentException(string.Format("\"{0}\" is not a valid direction", str));
+	}
+
+	public string ToJson() {
+		return string.Format(new CultureInfo("en-US"), "{{\"player\":{0},\"angle\":{1},\"state\":\"{2}\"}}",
+			actor is Client ? ((Client)actor).ID : 0,
+			position,
+			latestDecision == Direction.Left ? "moving_clockwise" : (latestDecision == Direction.Right ? "moving_counterclockwise" : "stop"));
 	}
 }

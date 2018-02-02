@@ -12,4 +12,10 @@ public class VecUtil {
 			sn * v.x + cs * v.y	
 		);
 	}
+
+	public static float FullAngle(Vector2 v) {
+		float angle = Vector2.SignedAngle(Vector2.down, v);
+		angle = angle >= 0 ? angle : 360f + angle;
+		return angle * Mathf.PI / 180f;
+	}
 }

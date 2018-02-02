@@ -97,6 +97,7 @@ public class Server : MonoBehaviour {
 	}
 	
 	public void StartGame() {
+		CleanClientList();
 		List<PongActor> actors = new List<PongActor>();
 		actors.AddRange(clients.Select(x => (PongActor)x));
 		arena.StartGame(actors, CleanClientList);

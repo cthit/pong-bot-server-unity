@@ -8,6 +8,8 @@ public class Arena : MonoBehaviour {
 	public float radius = 1.0f;
 	public float paddleSpeed = Mathf.PI / 2;
 	public float ballSpeed = 2.0f;
+	public float ballSpeedMultiplier = 1.03f;
+	public int requiredPoints = 5;
 
 	public delegate void OnGameEnd();
 
@@ -28,14 +30,14 @@ public class Arena : MonoBehaviour {
 			StringBuilder paddleList = new StringBuilder();
 
 			for(int i = 0; i < paddles.Count; i++) {
-				paddleList.Append(JsonUtility.ToJson(paddles[i]));
+				paddleList.Append(paddles[i].ToJson());
 				if(i < paddles.Count - 1) {
 					paddleList.Append(',');
 				}
 			}
 
 			return string.Format("{{\"ball\":{0}, \"paddles\":[{1}]}}",
-				JsonUtility.ToJson(ball),
+				ball.ToJson(),
 				paddleList.ToString()
 			);
 		}
@@ -43,6 +45,7 @@ public class Arena : MonoBehaviour {
 
 	public GameObject ballPrefab;
 	public GameObject paddlePrefab;
+	public GameObject scoreCounterPrefab;
 
 	private State state = null;
 	
@@ -67,19 +70,37 @@ public class Arena : MonoBehaviour {
 			Paddle paddle = paddleObject.AddComponent<Paddle>();
 			paddle.Initialize(actors[i], paddleRadius, radius, areaSize * i, areaSize, paddleSpeed);
 			paddles.Add(paddle);
+
+			Vector2 spos = VecUtil.Rotate(new Vector2(0, -radius * 1.3f), areaSize * i + areaSize / 2f);
+			GameObject scoreCounterObject = GameObject.Instantiate(
+				scoreCounterPrefab,
+				new Vector3(spos.x, spos.y, 0),
+				Quaternion.identity,
+				transform
+			);
+			scoreCounterObject.name = string.Format("Player {0} Score Counter", i);
+			scoreCounterObject.GetComponent<ScoreCounter>().SetPaddle(paddle);
 		}
 
 		GameObject ballObject = GameObject.Instantiate(ballPrefab, Vector3.zero, Quaternion.identity, transform);
 		Ball ball = ballObject.AddComponent<Ball>();
-		ball.Reset(ballSpeed);
+		ball.Reset(ballSpeed, ballSpeedMultiplier);
 
 		state = new State(ball, paddles, callback);
+
+		foreach(PongActor actor in actors) {
+			actor.OnGameStart(state);
+		}
 	}
 
 	public void StopGame() {
 		if(state == null) {
 			Debug.LogError("Game Already Stopped");
 			return;
+		}
+
+		foreach(Paddle paddle in state.Paddles) {
+			paddle.Actor.OnGameEnd(state);
 		}
 
 		foreach(Transform child in transform) {
@@ -93,6 +114,30 @@ public class Arena : MonoBehaviour {
 		state = null;
 	}
 
+	private void DescorePaddle(Paddle scoree) {
+		foreach(Paddle paddle in state.paddles) {
+			if(scoree == paddle) continue;
+
+			paddle.IncrementPoints();
+		}
+
+		int winner = -1;
+		for(int i = 0; i < state.paddles.Count; i++) {
+			if(state.paddles[i].Points > requiredPoints) {
+				if(winner >= 0) {
+					winner = -1;
+					break;
+				}
+				winner = i;
+			}
+		}
+
+		if(winner >= 0) {
+			Debug.LogFormat("Player {0} won!", winner);
+			StopGame();
+		}
+	}
+
 	void FixedUpdate() {
 		if(state != null) {
 			foreach(Paddle paddle in state.Paddles) {
@@ -101,7 +146,19 @@ public class Arena : MonoBehaviour {
 			state.ball.UpdateBall(state, Time.fixedDeltaTime);
 
 			if(state.ball.position.ToVec2().magnitude > radius) {
-				state.ball.Reset(ballSpeed);
+				float angle = VecUtil.FullAngle(state.ball.position.ToVec2());
+
+				GameObject.Destroy(state.ball.gameObject);
+				GameObject ballObject = GameObject.Instantiate(ballPrefab, Vector3.zero, Quaternion.identity, transform);
+				state.ball = ballObject.AddComponent<Ball>();
+				state.ball.Reset(ballSpeed, ballSpeedMultiplier);
+
+				foreach(Paddle paddle in state.Paddles) {
+					if(angle < paddle.AreaEnd) {
+						DescorePaddle(paddle);
+						break;
+					}
+				}
 			}
 		}
 	}

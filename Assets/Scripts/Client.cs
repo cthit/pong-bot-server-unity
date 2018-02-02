@@ -9,7 +9,7 @@ using System.Threading;
 
 public class Client : PongActor {
 
-	const float NETWORK_SEND_DELAY = 0.1f;
+	const float NETWORK_SEND_DELAY = 0.05f;
 
 	[System.Serializable]
 	public class ClientInfo {
@@ -73,7 +73,8 @@ public class Client : PongActor {
 		if(IsConnected) {
 			try {
 				if(Time.fixedTime - latestNetworkSend >= NETWORK_SEND_DELAY) {
-					writer.WriteLine(state.ToJson());
+					writer.WriteLine(string.Format("{{\"event\":\"game_state\",\"game_state\":{0}}}",
+						state.ToJson()));
 					latestNetworkSend = Time.fixedTime;
 				}
 
@@ -96,6 +97,26 @@ public class Client : PongActor {
 		}
 
 		return latestDecision;
+	}
+
+
+	public void OnGameStart(Arena.State state) {
+		StringBuilder idList = new StringBuilder();
+		for(int i = 0; i < state.paddles.Count; i++) {
+			if(state.paddles[i].Actor is Client) {
+				Client client = (Client)state.paddles[i].Actor;
+				idList.Append(client.ID);
+				if(i < state.paddles.Count - 1) {
+					idList.Append(',');
+				}
+			}
+		}
+
+		SendMessage(string.Format("{{\"event\":\"start_game\",\"player_ids\":[{0}]}}", idList.ToString()));
+	}
+	public void OnGameEnd(Arena.State state) {
+		// TODO: Maybe send winner?
+		SendMessage(string.Format("{{\"event\":\"end_game\"}}"));
 	}
 
 	public string ReadMessage() {

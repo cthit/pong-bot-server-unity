@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Globalization;
 
 [System.Serializable]
 public class SVector2 {
@@ -23,5 +24,9 @@ public class SVector2 {
 
 	public Vector2 ToVec2() {
 		return new Vector2(x, y);
+	}
+
+	public string ToJson() {
+		return string.Format(new CultureInfo("en-US"), "{{\"x\":{0},\"y\":{1}}}", x, y);
 	}
 }

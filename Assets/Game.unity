@@ -1317,7 +1317,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.0000027847295}
+  m_AnchoredPosition: {x: 0, y: 0.000006091752}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1467037727
@@ -1949,11 +1949,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13dc09de5b2be45019318093fbb7d39b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 4
+  radius: 3.5
   paddleSpeed: 3.141592
   ballSpeed: 5
   ballSpeedMultiplier: 1.03
-  requiredPoints: 5
+  requiredPoints: 8
   ballPrefab: {fileID: 1178929844235926, guid: 7abe2760ab59e433c815eccd69bdefac, type: 2}
   paddlePrefab: {fileID: 1703981918255120, guid: 1c18d2afb3c054ba096ad7ba218c7cda,
     type: 2}

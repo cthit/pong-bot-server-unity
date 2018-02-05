@@ -109,9 +109,12 @@ public class Client : PongActor {
 			if(state.paddles[i].Actor is Client) {
 				Client client = (Client)state.paddles[i].Actor;
 				idList.Append(client.ID);
-				if(i < state.paddles.Count - 1) {
-					idList.Append(',');
-				}
+			} else {
+				idList.Append(0);
+			}
+			
+			if(i < state.paddles.Count - 1) {
+				idList.Append(',');
 			}
 		}
 

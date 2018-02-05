@@ -11,6 +11,8 @@ public class Arena : MonoBehaviour {
 	public float ballSpeedMultiplier = 1.03f;
 	public int requiredPoints = 5;
 
+	public string[] sampleNames;
+
 	public delegate void OnGameEnd();
 
 	public class State {
@@ -48,9 +50,10 @@ public class Arena : MonoBehaviour {
 	public GameObject scoreCounterPrefab;
 
 	private State state = null;
+	public bool GameStarted { get{ return state != null; } }
 	
 	public void StartGame(List<PongActor> actors, OnGameEnd callback) {
-		if(state != null) {
+		if(GameStarted) {
 			Debug.LogError("Game Already Started");
 			return;
 		}
@@ -80,7 +83,13 @@ public class Arena : MonoBehaviour {
 				transform
 			);
 			scoreCounterObject.name = string.Format("Player {0} Score Counter", i);
-			scoreCounterObject.GetComponent<ScoreCounter>().SetPaddle(paddle);
+			ScoreCounter sc = scoreCounterObject.GetComponent<ScoreCounter>();
+			sc.SetPaddle(paddle);
+			if(actors[i] is Client) {
+				sc.SetName(((Client)actors[i]).info.name);
+			} else {
+				sc.SetName(sampleNames[Random.Range(0, sampleNames.Length)]);
+			}
 		}
 
 		GameObject ballObject = GameObject.Instantiate(ballPrefab, Vector3.zero, Quaternion.identity, transform);
@@ -95,7 +104,7 @@ public class Arena : MonoBehaviour {
 	}
 
 	public void StopGame() {
-		if(state == null) {
+		if(!GameStarted) {
 			Debug.LogError("Game Already Stopped");
 			return;
 		}
@@ -107,27 +116,34 @@ public class Arena : MonoBehaviour {
 		foreach(Transform child in transform) {
 			GameObject.Destroy(child.gameObject);
 		}
-
-		if(state.callback != null) {
-			state.callback();
-		}
+		
+		OnGameEnd callback = state.callback;
 
 		state = null;
+
+		if(callback != null) {
+			callback();
+		}
 	}
 
 	private void DescorePaddle(Paddle scoree) {
-		foreach(Paddle paddle in state.paddles) {
+		List<Paddle> paddles = state.paddles;
+		foreach(Paddle paddle in paddles) {
 			if(scoree == paddle) continue;
 
 			paddle.IncrementPoints();
 		}
 
 		int winner = -1;
-		for(int i = 0; i < state.paddles.Count; i++) {
-			if(state.paddles[i].Points > requiredPoints) {
+		for(int i = 0; i < paddles.Count; i++) {
+			if(paddles[i].Points >= requiredPoints) {
 				if(winner >= 0) {
-					winner = -1;
-					break;
+					if(paddles[winner].Points > paddles[i].Points) {
+						continue;
+					} else if(paddles[winner].Points == paddles[i].Points) {
+						winner = -1;
+						break;
+					}
 				}
 				winner = i;
 			}
@@ -140,7 +156,7 @@ public class Arena : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-		if(state != null) {
+		if(GameStarted) {
 			foreach(Paddle paddle in state.Paddles) {
 				paddle.UpdatePaddle(state, Time.fixedDeltaTime);
 			}

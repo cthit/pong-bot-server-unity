@@ -1,20 +1,54 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
+[RequireComponent(typeof(Arena))]
+[RequireComponent(typeof(Server))]
 public class DIFFAOrganizer : MonoBehaviour, GameOrganizer {
 
-	public void Initialize() {
-		
+	private Arena arena;
+	private Server server;
+	private bool restart = false;
+
+	void OnEnable() {
+		arena = GetComponent<Arena>();
+		server = GetComponent<Server>();
+		RestartGame();
 	}
 
-	// Use this for initialization
-	void Start () {
+	private void RestartGame() {
+		if(arena.GameStarted) {
+			arena.StopGame();
+		}
+
+		List<Client> clients = server.Clients;
+
+		if(clients.Count == 0) {
+			return;
+		}
+
 		
+		List<PongActor> actors = clients.Cast<PongActor>().ToList();
+		while(actors.Count < 4) {
+			actors.Add(new DumbActor());
+		}
+
+		arena.StartGame(actors, RestartGame);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	public void OnClientConnected(Client client) {
+		restart = true;;
+	}
+
+	public void OnClientDisconnected(Client client) {
+		restart = true;
+	}
+
+	void Update() {
+		if(restart) {
+			restart = false;
+			RestartGame();
+		}
 	}
 }

@@ -21,6 +21,7 @@ public class Server : MonoBehaviour {
 	private List<Client> pendingClients = new List<Client>();
 	private List<Client> clients = new List<Client>();
 
+	public List<Client> Clients { get { return new List<Client>(clients); } }
 	public int ClientCount { get{ return clients.Count; } }
 	public int PendingClientCount { get{ return clients.Count; } }
 
@@ -58,6 +59,8 @@ public class Server : MonoBehaviour {
 					pendingClients.Remove(client);
 					HandlePendingClients();
 					UpdateClientList(); // TODO: move me somewhere more sensible
+
+					gameObject.SendMessage("OnClientConnected", client);
 					break;
 				}
 			} catch(Exception e) {

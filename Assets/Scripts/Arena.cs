@@ -63,13 +63,14 @@ public class Arena : MonoBehaviour {
 		List<Paddle> paddles = new List<Paddle>();
 
 		float areaSize = Mathf.PI * 2f / actors.Count;
-		float paddleRadius = 1f - 0.2f * actors.Count;
+		float paddleRadius = 0.4f;//1f - 0.2f * actors.Count;
 		
 		for(int i = 0; i < actors.Count; i++) {
 			GameObject paddleObject = GameObject.Instantiate(paddlePrefab, transform);
 			Paddle paddle = paddleObject.AddComponent<Paddle>();
 			paddle.Initialize(actors[i], paddleRadius, radius, areaSize * i, areaSize, paddleSpeed);
 			paddles.Add(paddle);
+			paddleObject.name = string.Format("Player {0}", i);
 
 			Vector2 spos = VecUtil.Rotate(new Vector2(0, -radius * 1.3f), areaSize * i + areaSize / 2f);
 			GameObject scoreCounterObject = GameObject.Instantiate(
@@ -153,9 +154,10 @@ public class Arena : MonoBehaviour {
 				state.ball = ballObject.AddComponent<Ball>();
 				state.ball.Reset(ballSpeed, ballSpeedMultiplier);
 
-				foreach(Paddle paddle in state.Paddles) {
-					if(angle < paddle.AreaEnd) {
-						DescorePaddle(paddle);
+				for(int i = 0; i < state.Paddles.Count; i++) {
+					if(angle < state.Paddles[i].AreaEnd) {
+						Debug.LogFormat("Player {0} lost a point!", i);
+						DescorePaddle(state.Paddles[i]);
 						break;
 					}
 				}
@@ -164,9 +166,23 @@ public class Arena : MonoBehaviour {
 	}
 
 	void Start() {
+#if true // Debug setup
 		List<PongActor> actors = new List<PongActor>();
 		actors.Add(new PlayerActor());
-		actors.Add(new DumbActor());
-		//StartGame(actors);
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		actors.Add(new PlayerActor());
+		StartGame(actors, null);
+#endif
 	}
 }

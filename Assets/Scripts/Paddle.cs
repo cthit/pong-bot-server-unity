@@ -29,7 +29,6 @@ public class Paddle : MonoBehaviour {
 
 	public float Position{ get{ return position; } }
 	public float Radius{ get{ return radius; } }
-
 	public float AreaBegin { get{ return areaBegin; } }
 	public float AreaSize { get{ return areaSize; } }
 	public float AreaEnd { get{ return areaBegin + areaSize; } }
@@ -59,8 +58,8 @@ public class Paddle : MonoBehaviour {
 	}
 
 	private void UpdateWorldPosition() {
-		transform.rotation = Quaternion.Euler(0, 0, position / (Mathf.PI/180f) + 90f);
-		Vector2 coords = new Vector2(0, arenaRadius + radius / 4f);
+		transform.rotation = Quaternion.Euler(0, 0, position / (Mathf.PI/180f) - 90f);
+		Vector2 coords = new Vector2(0, -(arenaRadius + radius / 2f));
 		
 		coords = VecUtil.Rotate(coords, position);
 
@@ -73,10 +72,10 @@ public class Paddle : MonoBehaviour {
 		switch (latestDecision)
 		{
 			case Direction.Left:
-				position = Mathf.Min(position + maxSpeed * deltaTime, areaBegin + areaSize);
+				position = Mathf.Max(position - maxSpeed * deltaTime, areaBegin);
 				break;
 			case Direction.Right:
-				position = Mathf.Max(position - maxSpeed * deltaTime, areaBegin);
+				position = Mathf.Min(position + maxSpeed * deltaTime, areaBegin + areaSize);
 				break;
 			default:
 				break;

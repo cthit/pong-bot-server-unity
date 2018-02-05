@@ -70,24 +70,50 @@ public class Ball : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D collision) {
-		Collider2D otherCollider = collision.otherCollider;
-		if(otherCollider.GetType() != typeof(CircleCollider2D)) {
+		if(collision.collider.GetType() != typeof(CircleCollider2D)) {
 			return;
 		}
-
+		CircleCollider2D otherCollider = (CircleCollider2D)collision.collider;
 		Transform other = otherCollider.transform;
-		Vector2 diff = new Vector2(
-			other.position.x - position.X,
-			other.position.y - position.Y
+		Vector2 otherPosition = new Vector2(
+			other.position.x + otherCollider.offset.x,
+			other.position.y + otherCollider.offset.y	
 		);
-		float angle = Vector2.Angle(velocity.ToVec2(), diff);
+
+		Vector2 diff = new Vector2(
+			position.X - other.position.x ,
+			position.Y - other.position.y 
+		);
+
+		float angle = VecUtil.FullAngle(velocity.ToVec2()) - VecUtil.FullAngle(diff);
+
+		Debug.DrawLine(
+			position.ToVec2(),
+			position.ToVec2() - velocity.ToVec2().normalized * 0.4f,
+			Color.red,
+			4f
+		);
+
+		Debug.DrawLine(
+			position.ToVec2(),
+			position.ToVec2() + diff.normalized * 0.4f,
+			Color.yellow,
+			4f
+		);
 
 		this.speed *= multiplier;
-		velocity = new SVector2(VecUtil.Rotate(velocity.ToVec2(), angle * 2).normalized * speed);
+		velocity = new SVector2(VecUtil.Rotate(-velocity.ToVec2(), -angle * 2).normalized * speed);
 		position = new SVector2(
 			other.transform.position +
 			new Vector3(diff.x, diff.y).normalized *
-			(((CircleCollider2D)otherCollider).radius + GetComponent<CircleCollider2D>().radius)
+			(otherCollider.radius + GetComponent<CircleCollider2D>().radius)
+		);
+
+		Debug.DrawLine(
+			position.ToVec2(),
+			position.ToVec2() + velocity.ToVec2().normalized * 0.4f,
+			Color.green,
+			4f
 		);
 	}
 

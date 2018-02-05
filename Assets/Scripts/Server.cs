@@ -31,7 +31,7 @@ public class Server : MonoBehaviour {
 			while(listener.Pending()) {
 				try {
 					TcpClient tcpClient = listener.AcceptTcpClient();
-					Client client = new Client(++idTicker, tcpClient);
+					Client client = new Client(++idTicker, tcpClient, this);
 					pendingClients.Add(client);
 					Debug.LogFormat("New client {0} connected", client.ID);
 					client.SendMessage(string.Format("{{\"id\":{0}}}", client.ID));
@@ -71,19 +71,6 @@ public class Server : MonoBehaviour {
 		}
 	}
 
-	private void CleanClientList() {
-		int preCount = clients.Count;
-		for(int i = 0; i < clients.Count; i++) {
-			if(!clients[i].IsConnected) {
-				clients.RemoveAt(i--);
-			}
-		}
-
-		if(preCount != clients.Count) {
-			UpdateClientList();
-		}
-	}
-
 	private void UpdateClientList() {
 		foreach(Transform child in clientList) {
 			GameObject.Destroy(child.gameObject);
@@ -95,12 +82,19 @@ public class Server : MonoBehaviour {
 			listItem.transform.Translate(0, -40 * i, 0);
 		}
 	}
+
+	public void OnClientDisconnected(Client client) {
+		if(clients.Remove(client)) {
+			UpdateClientList();
+		} else {
+			Debug.LogError("OnClientDisconnected called on non-existing client");
+		}
+	}
 	
 	public void StartGame() {
-		CleanClientList();
 		List<PongActor> actors = new List<PongActor>();
 		actors.AddRange(clients.Select(x => (PongActor)x));
-		arena.StartGame(actors, CleanClientList);
+		arena.StartGame(actors, null);
 	}
 
 	// Use this for initialization

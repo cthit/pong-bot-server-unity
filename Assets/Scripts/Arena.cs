@@ -156,7 +156,7 @@ public class Arena : MonoBehaviour {
 
 				for(int i = 0; i < state.Paddles.Count; i++) {
 					if(angle < state.Paddles[i].AreaEnd) {
-						Debug.LogFormat("Player {0} lost a point!", i);
+						//Debug.LogFormat("Player {0} lost a point!", i);
 						DescorePaddle(state.Paddles[i]);
 						break;
 					}
@@ -166,7 +166,7 @@ public class Arena : MonoBehaviour {
 	}
 
 	void Start() {
-#if true // Debug setup
+#if false // Debug setup
 		List<PongActor> actors = new List<PongActor>();
 		actors.Add(new PlayerActor());
 		actors.Add(new PlayerActor());

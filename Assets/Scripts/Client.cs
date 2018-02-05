@@ -19,6 +19,7 @@ public class Client : PongActor {
 	private int id;
 	public ClientInfo info;
 	public TcpClient tcpClient;
+	private Server server;
 	private StreamReader reader;
 	private StreamWriter writer;
 
@@ -41,10 +42,11 @@ public class Client : PongActor {
 		}
 	}
 
-	public Client(int id, TcpClient tcpClient) {
+	public Client(int id, TcpClient tcpClient, Server server) {
 		this.id = id;
 		this.info = null;
 		this.tcpClient = tcpClient;
+		this.server = server;
 		this.reader = new StreamReader(tcpClient.GetStream());
 		this.writer = new StreamWriter(tcpClient.GetStream());
 		this.latestNetworkSend = Time.fixedTime;
@@ -93,6 +95,7 @@ public class Client : PongActor {
 				this.tcpClient = null;
 				this.writer = null;
 				this.reader = null;
+				server.gameObject.SendMessage("OnClientDisconnected", this);
 			}
 		}
 
@@ -115,8 +118,10 @@ public class Client : PongActor {
 		SendMessage(string.Format("{{\"event\":\"start_game\",\"player_ids\":[{0}]}}", idList.ToString()));
 	}
 	public void OnGameEnd(Arena.State state) {
-		// TODO: Maybe send winner?
-		SendMessage(string.Format("{{\"event\":\"end_game\"}}"));
+		if(IsConnected) {
+			// TODO: Maybe send winner?
+			SendMessage(string.Format("{{\"event\":\"end_game\"}}"));
+		}
 	}
 
 	public string ReadMessage() {

@@ -75,10 +75,6 @@ public class Ball : MonoBehaviour {
 		}
 		CircleCollider2D otherCollider = (CircleCollider2D)collision.collider;
 		Transform other = otherCollider.transform;
-		Vector2 otherPosition = new Vector2(
-			other.position.x + otherCollider.offset.x,
-			other.position.y + otherCollider.offset.y	
-		);
 
 		Vector2 diff = new Vector2(
 			position.X - other.position.x ,

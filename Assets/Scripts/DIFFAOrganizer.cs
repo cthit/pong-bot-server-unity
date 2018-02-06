@@ -18,6 +18,10 @@ public class DIFFAOrganizer : MonoBehaviour, GameOrganizer {
 	}
 
 	private void RestartGame() {
+		if(!enabled) {
+			return;
+		}
+
 		if(arena.GameStarted) {
 			arena.StopGame();
 		}

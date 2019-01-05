@@ -151,6 +151,11 @@ public class Arena : MonoBehaviour {
 
 		if(winner >= 0) {
 			Debug.LogFormat("Player {0} won!", winner);
+			if(paddles[winner].Actor is Client) {
+				Notifier.Notify(string.Format("{0} has won!", ((Client)paddles[winner].Actor).info.name), 7f);
+			} else {
+				Notifier.Notify(string.Format("A bot won the game..."), 5f);
+			}
 			StopGame();
 		}
 	}

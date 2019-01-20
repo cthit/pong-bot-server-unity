@@ -1,3 +1,4 @@
-﻿public interface GameOrganizer {
+﻿public interface GameOrganizer
+{
 
 }

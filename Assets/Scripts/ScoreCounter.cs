@@ -1,25 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ScoreCounter : MonoBehaviour {
+public class ScoreCounter : MonoBehaviour
+{
 
-	public TextMesh counterField;
-	public TextMesh nameField;
+    public TextMesh counterField;
+    public TextMesh nameField;
 
-	private Paddle paddle = null;
+    private Paddle paddle = null;
 
-	public void SetPaddle(Paddle paddle) {
-		this.paddle = paddle;
-	}
+    public void SetPaddle(Paddle paddle)
+    {
+        this.paddle = paddle;
+    }
 
-	public void SetName(string name) {
-		nameField.text = name;
-	}
+    public void SetName(string name)
+    {
+        nameField.text = name;
+    }
 
-	void FixedUpdate () {
-		if(paddle != null) {
-			counterField.text = string.Format("{0}", paddle.Points);
-		}
-	}
+    void FixedUpdate()
+    {
+        if (paddle != null)
+        {
+            counterField.text = string.Format("{0}", paddle.Points);
+        }
+    }
 }

@@ -1,58 +1,69 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using System.Linq;
+
+using UnityEngine;
 
 [RequireComponent(typeof(Arena))]
 [RequireComponent(typeof(Server))]
-public class DIFFAOrganizer : MonoBehaviour, GameOrganizer {
+public class DIFFAOrganizer : MonoBehaviour, GameOrganizer
+{
 
-	private Arena arena;
-	private Server server;
-	private bool restart = false;
+    private Arena arena;
+    private Server server;
+    private bool restart = false;
 
-	void OnEnable() {
-		arena = GetComponent<Arena>();
-		server = GetComponent<Server>();
-		RestartGame();
-	}
+    void OnEnable()
+    {
+        arena = GetComponent<Arena>();
+        server = GetComponent<Server>();
+        RestartGame();
+    }
 
-	private void RestartGame() {
-		if(!enabled) {
-			return;
-		}
+    private void RestartGame()
+    {
+        if (!enabled)
+        {
+            return;
+        }
 
-		if(arena.GameStarted) {
-			arena.StopGame();
-		}
+        if (arena.GameStarted)
+        {
+            arena.StopGame();
+        }
 
-		List<Client> clients = server.Clients;
+        List<Client> clients = server.Clients;
 
-		if(clients.Count == 0) {
-			return;
-		}
+        if (clients.Count == 0)
+        {
+            return;
+        }
 
-		
-		List<PongActor> actors = clients.Cast<PongActor>().ToList();
-		while(actors.Count < 4) {
-			actors.Add(new DumbActor());
-		}
 
-		arena.StartGame(actors, RestartGame);
-	}
+        List<PongActor> actors = clients.Cast<PongActor>().ToList();
+        while (actors.Count < 4)
+        {
+            actors.Add(new DumbActor());
+        }
 
-	public void OnClientConnected(Client client) {
-		restart = true;;
-	}
+        arena.StartGame(actors, RestartGame);
+    }
 
-	public void OnClientDisconnected(Client client) {
-		restart = true;
-	}
+    public void OnClientConnected(Client client)
+    {
+        restart = true; ;
+    }
 
-	void Update() {
-		if(restart) {
-			restart = false;
-			RestartGame();
-		}
-	}
+    public void OnClientDisconnected(Client client)
+    {
+        restart = true;
+    }
+
+    void Update()
+    {
+        if (restart)
+        {
+            restart = false;
+            RestartGame();
+        }
+    }
 }

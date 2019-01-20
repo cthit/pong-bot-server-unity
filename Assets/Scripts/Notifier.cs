@@ -19,7 +19,7 @@ public class Notifier : MonoBehaviour
             view = (GameObject)Instantiate(notifier.notificationPrefab);
             view.transform.SetParent(notifier.transform);
             view.GetComponentInChildren<TextMeshProUGUI>().text = message;
-            view.GetComponent<RectTransform>().anchoredPosition = new Vector2(120, -Screen.height - 60);
+            view.GetComponent<RectTransform>().anchoredPosition = new Vector2(120, -Screen.height);
         }
 
         public Notification(GameObject view, float time)
@@ -61,7 +61,7 @@ public class Notifier : MonoBehaviour
             else
             {
                 notifications[i] = new Notification(notifications[i].view, notifications[i].time - Time.deltaTime); // ARRHHGHGH
-                Vector2 targetPosition = new Vector2(notifications[i].time <= 1f ? -400 : (120 + ((i % 2) == 0 ? 10 : -10)), -70 - i * 60);
+                Vector2 targetPosition = new Vector2(notifications[i].time <= 1f ? -400 : (120 + ((i % 2) == 0 ? 10 : -10)), -100 - i * 60);
                 RectTransform rt = notifications[i].view.GetComponent<RectTransform>();
                 rt.anchoredPosition += (targetPosition - rt.anchoredPosition) * Time.deltaTime;
             }

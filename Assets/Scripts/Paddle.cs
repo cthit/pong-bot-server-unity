@@ -91,6 +91,7 @@ public class Paddle : MonoBehaviour
 
     public static Direction DirectionFromString(string str)
     {
+        Debug.Log("Recieved paddle direction: " + str);
         string lower = str.ToLower();
         if (lower.Equals("move_clockwise"))
         {

@@ -111,7 +111,7 @@ public class Paddle : MonoBehaviour
     {
         return string.Format(new CultureInfo("en-US"), "{{\"player\":{0},\"angle\":{1},\"state\":\"{2}\"}}",
             actor is Client ? ((Client)actor).ID : 0,
-            position + (Mathf.PI / 2),
+            position - (Mathf.PI / 2),
             latestDecision == Direction.Left ? "moving_clockwise" : (latestDecision == Direction.Right ? "moving_counterclockwise" : "stop"));
     }
 }

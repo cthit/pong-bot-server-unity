@@ -103,7 +103,7 @@ public class Paddle : MonoBehaviour
         }
         else if (lower.Equals("stop"))
         {
-            return Direction.Left;
+            return Direction.None;
         }
         throw new ArgumentException(string.Format("\"{0}\" is not a valid direction", str));
     }
